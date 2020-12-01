@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { fromFetch } from "rxjs/fetch";
 import { of, timer, zip } from "rxjs";
-import { map, switchMap, catchError, startWith } from "rxjs/operators";
+import { map, switchMap, catchError, startWith, mergeMap } from "rxjs/operators";
 import { render } from "react-dom";
 import { $ } from "react-rxjs-elements";
 import './App.css';
@@ -13,7 +13,10 @@ const [digimons, setDigimons] = useState([]);
 
 useEffect(() => {
   const subscription = fromFetch('https://digimon-api.vercel.app/api/digimon')
-  .subscribe(response => response.json().then(data => setDigimons(data)));
+  .pipe(
+    mergeMap(response => response.json())
+  )
+  .subscribe(data => setDigimons(data));
 
   return () => subscription.unsubscribe();
 },[])
