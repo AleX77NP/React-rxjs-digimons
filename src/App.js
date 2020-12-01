@@ -14,6 +14,8 @@ const [digimons, setDigimons] = useState([]);
 useEffect(() => {
   const subscription = fromFetch('https://digimon-api.vercel.app/api/digimon')
   .subscribe(response => response.json().then(data => setDigimons(data)));
+
+  return () => subscription.unsubscribe();
 },[])
 
   return (
