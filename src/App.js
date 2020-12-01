@@ -8,26 +8,29 @@ import './App.css';
 
 function App() {
 
-const [digimons, setDigimons] = useState([]);
+  const stream$ = useMemo(() => 
+     fromFetch('https://digimon-api.vercel.app/api/digimon').pipe(
+       mergeMap(response => response.json()),
+       map(data => <div className="digi-grid">{data.map(elem => renderDigimon(elem))}</div>),
+       catchError(() => of(<div><h2>ERROR...</h2></div>)),
+       startWith(<div><h2>Loading...</h2></div>)
+     )
+  ,[]);
 
 
-useEffect(() => {
-  const subscription = fromFetch('https://digimon-api.vercel.app/api/digimon')
-  .pipe(
-    mergeMap(response => response.json())
-  )
-  .subscribe(data => setDigimons(data));
-
-  return () => subscription.unsubscribe();
-},[])
+  const renderDigimon = (digimon) => {
+    return <div className="digimon">
+      <h3>{digimon.name}</h3>
+      <img src={digimon.img} alt="" />
+      <h4>{digimon.level}</h4>
+    </div>
+  }
 
   return (
     <div className="App">
-      <div class="container">
-      <h1>Search Digimon by name:</h1>
-      <div>
-     {JSON.stringify(digimons)}
-      </div>
+      <div className="container">
+      <h1>Fetched Digimons</h1>
+        <$>{ stream$ }</$>
       </div>
     </div>
   );
